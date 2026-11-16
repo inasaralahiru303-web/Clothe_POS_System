@@ -58,4 +58,109 @@ function displayProducts() {
 
 }
 
+// SEARCH PRODUCTS
+
+document.getElementById("searchInput").addEventListener("input", displayProducts);
+
+
+// CATEGORY FILTER
+
+document.querySelectorAll(".filter").forEach(btn => {
+
+    btn.onclick = function() {
+        selectedCategory = this.dataset.category;
+        document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+        displayProducts();
+    };
+
+});
+
+
+// ADD TO CART
+
+function addToCart(id) {
+
+    let product = products.find(p => p.id === id);
+    let item = cart.find(p => p.id === id);
+
+    if (!product || product.stock <= 0) return;
+
+    if (item) {
+        if (item.qty >= product.stock) return alert("Stock limit reached!");
+        item.qty++;
+    } else {
+        cart.push({...product, qty:1});
+    }
+
+    displayCart();
+}
+
+
+// DISPLAY CART
+
+function displayCart() {
+
+    document.getElementById("cartItems").innerHTML = cart.map(item => `
+        <div class="cart-item">
+
+            ${item.name} - Rs. ${item.price}
+
+            <button onclick="changeQty(${item.id}, -1)">-</button>
+
+            ${item.qty}
+
+            <button onclick="changeQty(${item.id}, 1)">+</button>
+
+        </div>
+    `).join("") || "Your cart is empty.";
+
+    let subtotal = cart.reduce((sum, p) => sum + p.price * p.qty, 0);
+
+    let discount = Math.min(100, Math.max(0,
+        Number(document.getElementById("discountInput").value) || 0
+    ));
+
+    let totalDiscount = subtotal * discount / 100;
+
+    document.getElementById("subtotal").innerText = "Rs. " + subtotal.toFixed(2);
+    document.getElementById("discountAmount").innerText = "Rs. " + totalDiscount.toFixed(2);
+    document.getElementById("total").innerText = "Rs. " + (subtotal - totalDiscount).toFixed(2);
+
+}
+
+
+// CHANGE QUANTITY
+
+function changeQty(id, amount) {
+
+    let item = cart.find(p => p.id === id);
+    let product = products.find(p => p.id === id);
+
+    if (!item || !product) return;
+
+    item.qty += amount;
+
+    if (item.qty <= 0) {
+        cart = cart.filter(p => p.id !== id);
+    } else if (item.qty > product.stock) {
+        item.qty = product.stock;
+    }
+
+    displayCart();
+}
+
+
+// CLEAR CART
+
+document.getElementById("clearCart").onclick = function() {
+    cart = [];
+    displayCart();
+};
+
+
+// DISCOUNT
+
+document.getElementById("discountInput").oninput = displayCart;
+
 
