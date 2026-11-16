@@ -24,4 +24,38 @@ function saveData() {
     localStorage.setItem("orders", JSON.stringify(orders));
 }
 
+// DISPLAY PRODUCTS
+
+function displayProducts() {
+
+    let search = document.getElementById("searchInput").value.toLowerCase();
+
+    let result = products.filter(p =>
+        (selectedCategory === "All" || p.category === selectedCategory) &&
+        p.name.toLowerCase().includes(search)
+    );
+
+    document.getElementById("productGrid").innerHTML = result.map(p => `
+        <div class="product-card">
+
+            <div class="product-image">
+                <img src="${p.image}" alt="${p.name}">
+            </div>
+
+            <div class="product-info">
+                <h3>${p.name}</h3>
+                <p>${p.category}</p>
+                <b>Rs. ${p.price}</b>
+
+                <button onclick="addToCart(${p.id})"
+                    ${p.stock <= 0 ? "disabled" : ""}>
+                    +
+                </button>
+            </div>
+
+        </div>
+    `).join("");
+
+}
+
 
