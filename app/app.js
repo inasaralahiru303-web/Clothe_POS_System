@@ -10,3 +10,18 @@ let products = [
     {id:6, name:"Tote Bag", category:"Accessories", price:2190, stock:15, image:"https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=400"}
 ];
 
+let cart = [];
+let customers = JSON.parse(localStorage.getItem("customers")) || [];
+let orders = JSON.parse(localStorage.getItem("orders")) || [];
+let selectedCategory = "All";
+let editId = null;
+
+
+// SAVE DATA
+
+function saveData() {
+    localStorage.setItem("customers", JSON.stringify(customers));
+    localStorage.setItem("orders", JSON.stringify(orders));
+}
+
+
