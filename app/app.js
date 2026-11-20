@@ -85,7 +85,6 @@ function addToCart(id) {
     let item = cart.find(p => p.id === id);
 
     if (!product || product.stock <= 0) return;
-
     if (item) {
         if (item.qty >= product.stock) return alert("Stock limit reached!");
         item.qty++;
@@ -162,5 +161,134 @@ document.getElementById("clearCart").onclick = function() {
 // DISCOUNT
 
 document.getElementById("discountInput").oninput = displayCart;
+
+// PRODUCT CRUD
+
+function displayProductTable() {
+
+    document.getElementById("productsTable").innerHTML = products.map(p => `
+        <tr>
+            <td>${p.name}</td>
+            <td>${p.category}</td>
+            <td>${p.price}</td>
+            <td>${p.stock}</td>
+            <td>
+                <button onclick="editProduct(${p.id})">Edit</button>
+                <button onclick="deleteProduct(${p.id})">Delete</button>
+            </td>
+        </tr>
+    `).join("");
+
+}
+
+
+// ADD PRODUCT
+
+document.getElementById("addProductBtn").onclick = function() {
+
+    editId = null;
+    document.getElementById("itemForm").reset();
+    document.getElementById("dialogTitle").innerText = "Add Product";
+
+    document.getElementById("productFields").hidden = false;
+    document.getElementById("customerFields").hidden = true;
+
+    document.getElementById("itemDialog").showModal();
+
+};
+
+
+// EDIT PRODUCT
+
+function editProduct(id) {
+
+    let p = products.find(p => p.id === id);
+    if (!p) return;
+
+    editId = id;
+
+    let form = document.getElementById("itemForm");
+
+    form.elements.name.value = p.name;
+    form.elements.category.value = p.category;
+    form.elements.price.value = p.price;
+    form.elements.stock.value = p.stock;
+    form.elements.image.value = p.image;
+
+    document.getElementById("dialogTitle").innerText = "Edit Product";
+    document.getElementById("productFields").hidden = false;
+    document.getElementById("customerFields").hidden = true;
+
+    document.getElementById("itemDialog").showModal();
+
+}
+
+
+// SAVE PRODUCT
+
+document.getElementById("itemForm").onsubmit = function(e) {
+
+    e.preventDefault();
+
+    let form = new FormData(this);
+
+    if (document.getElementById("customerFields").hidden === false) {
+
+        let customer = {
+            id: editId || Date.now(),
+            name: form.get("customerName"),
+            phone: form.get("phone"),
+            email: form.get("email")
+        };
+
+        if (editId) {
+            customers = customers.map(c => c.id === editId ? customer : c);
+        } else {
+            customers.push(customer);
+        }
+
+        displayCustomers();
+
+    } else {
+
+        let product = {
+            id: editId || Date.now(),
+            name: form.get("name"),
+            category: form.get("category"),
+            price: Number(form.get("price")),
+            stock: Number(form.get("stock")),
+            image: form.get("image")
+        };
+
+        if (editId) {
+            products = products.map(p => p.id === editId ? product : p);
+        } else {
+            products.push(product);
+        }
+
+        displayProducts();
+        displayProductTable();
+    }
+
+    saveData();
+    document.getElementById("itemDialog").close();
+
+};
+
+
+// DELETE PRODUCT
+
+function deleteProduct(id) {
+
+    if (confirm("Delete this product?")) {
+        products = products.filter(p => p.id !== id);
+        cart = cart.filter(p => p.id !== id);
+        displayProducts();
+        displayProductTable();
+        displayCart();
+    }
+
+}
+
 
 
